@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from nixtla import NixtlaClient
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message="DataFrameGroupBy.apply operated on the grouping columns.*"
+)
 
 # ========== ตั้งค่า TimeGPT ==========
 nixtla_client = NixtlaClient(
@@ -60,12 +66,11 @@ print("columns หลังจัดรูป:", df.columns.tolist())
 print(df.head())
 
 # ========== STEP 3: กำหนดช่วงวันสำหรับ Day-ahead evaluation ==========
+first_date = df['date'].min()
 last_date = df['date'].max()
-days_to_eval = 30  # ใช้ 30 วันสุดท้าย (ปรับได้ เช่น 7, 14, 60)
-start_eval_date = last_date - timedelta(days=days_to_eval - 1)
+start_eval_date = first_date + timedelta(days=1)
 
-print("ช่วงวันที่ใช้ evaluate day-ahead:",
-      start_eval_date, "→", last_date)
+print("ช่วงวันที่ใช้ evaluate day-ahead:", start_eval_date, "→", last_date)
 
 # ========== STEP 4: Loop ทำ Day-ahead 48-step per city per day ==========
 all_preds = []
